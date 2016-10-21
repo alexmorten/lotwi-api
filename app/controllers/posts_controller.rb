@@ -3,9 +3,21 @@ class PostsController < ApplicationController
 
   # GET /posts
   def index
-    @posts = Post.all
+    limit = params[:limit] || 20
+    lat = params[:lat]
+    lng = params[:lng]
+    dist = params[:dist]
 
-    render json: @posts
+    if lat && lng && dist
+      @posts = Post.joins(:location).within(dist, :origin => [lat,lng]).order(created_at: :desc).limit(limit)
+    elsif lat && lng
+      @posts = Post.by_distance(:origin => [lat,lng]).order(created_at: :desc).limit(limit)
+    else
+      @posts = Post.order(created_at: :desc).limit(limit)
+    end
+
+
+    render json: @posts, lat: lat, lng: lng
   end
 
   # GET /posts/1
