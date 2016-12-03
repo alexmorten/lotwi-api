@@ -1,7 +1,7 @@
 class PostsController < ApplicationController
   before_action :set_post, only: [:show, :update, :destroy]
 
-  # GET /posts
+# GET /posts ?limit & lat & lng & dist
   def index
     limit = params[:limit] || 20
     lat = params[:lat]
@@ -9,11 +9,16 @@ class PostsController < ApplicationController
     dist = params[:dist]
 
     if lat && lng && dist
-      @posts = Post.joins(:location).within(dist, :origin => [lat,lng]).order(created_at: :desc).limit(limit)
+      @posts = Post.joins(:location)
+                   .within(dist, :origin => [lat,lng])
+                   .order(created_at: :desc)
+                   .limit(limit)
     elsif lat && lng
-      @posts = Post.by_distance(:origin => [lat,lng]).order(created_at: :desc).limit(limit)
+      @posts = Post.by_distance(:origin => [lat,lng])
+                   .limit(limit)
     else
-      @posts = Post.order(created_at: :desc).limit(limit)
+      @posts = Post.order(created_at: :desc)
+                   .limit(limit)
     end
 
 
@@ -22,7 +27,7 @@ class PostsController < ApplicationController
 
   # GET /posts/1
   def show
-    render json: @post
+    render json: @post, lat: params[:lat], lng: params[:lng]
   end
 
   # POST /posts
