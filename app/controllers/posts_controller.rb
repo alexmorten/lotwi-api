@@ -3,7 +3,7 @@ class PostsController < ApplicationController
 
 # GET /posts ?limit & lat & lng & dist
   def index
-    limit = params[:limit] || 20
+    limit = params[:limit] && params[:limit].to_i <=1000 ? params[:limit] : 20
     lat = params[:lat]
     lng = params[:lng]
     dist = params[:dist]
