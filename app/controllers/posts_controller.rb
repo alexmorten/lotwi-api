@@ -7,17 +7,21 @@ class PostsController < ApplicationController
     lat = params[:lat]
     lng = params[:lng]
     dist = params[:dist]
+    query = params[:query] ? params[:query] : ""
 
     if lat && lng && dist
       @posts = Post.joins(:location)
                    .within(dist, :origin => [lat,lng])
                    .order(created_at: :desc)
+                   .where("LOWER(title) LIKE LOWER(?) OR LOWER(text) LIKE LOWER(?)","%#{query}%","%#{query}%")
                    .limit(limit)
     elsif lat && lng
       @posts = Post.by_distance(:origin => [lat,lng])
+                   .where("LOWER(title) LIKE LOWER(?) OR LOWER(text) LIKE LOWER(?)","%#{query}%","%#{query}%")
                    .limit(limit)
     else
       @posts = Post.order(created_at: :desc)
+                   .where("LOWER(title) LIKE LOWER(?) OR LOWER(text) LIKE LOWER(?)","%#{query}%","%#{query}%")
                    .limit(limit)
     end
 
